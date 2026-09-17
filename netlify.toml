@@ -14,6 +14,3 @@ node_bundler = "esbuild"
 [dev]
 command = "npm run dev"
 port = 8888
-
-[[functions]]
-node_version = "18.x"
