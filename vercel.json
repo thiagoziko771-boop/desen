@@ -1,0 +1,13 @@
+{
+  "buildCommand": "echo 'Static site'",
+  "public": ".",
+  "functions": {
+    "api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
+  "env": [
+    "AVEN_API_KEY"
+  ]
+}

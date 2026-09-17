@@ -1,0 +1,16 @@
+{
+  "name": "desenrola-brasil-funnel",
+  "version": "1.0.0",
+  "description": "Funnel de pagamento PIX - Programa Desenrola Brasil",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static build complete'"
+  },
+  "keywords": ["pix", "payment", "funnel"],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": "18.x"
+  }
+}
